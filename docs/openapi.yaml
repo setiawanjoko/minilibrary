@@ -1,0 +1,330 @@
+openapi: 3.0.0
+info:
+  title: Mini Library API
+  version: 1.0.0
+  description: API sederhana untuk peminjaman buku oleh pengguna
+
+servers:
+  - url: http://localhost:3000
+
+tags:
+  - name: Authentication
+    description: Registrasi dan autentikasi pengguna
+  - name: Users
+    description: Manajemen pengguna
+  - name: Books
+    description: Manajemen buku
+  - name: Borrowings
+    description: Manajemen peminjaman dan pengembalian buku
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    RegisterUser:
+      type: object
+      required:
+        - name
+        - email
+        - password
+      properties:
+        name:
+          type: string
+          example: John Doe
+        email:
+          type: string
+          format: email
+          example: john@example.com
+        password:
+          type: string
+          example: secret123
+    LoginUser:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: john@example.com
+        password:
+          type: string
+          example: secret123
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+    Book:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        author:
+          type: string
+        available:
+          type: boolean
+    BookInput:
+      type: object
+      required:
+        - title
+        - author
+      properties:
+        title:
+          type: string
+        author:
+          type: string
+    Borrowing:
+      type: object
+      properties:
+        id:
+          type: integer
+        user_name:
+          type: string
+        book_title:
+          type: string
+        borrowed_at:
+          type: string
+          format: date-time
+        returned_at:
+          type: string
+          format: date-time
+          nullable: true
+    BorrowRequest:
+      type: object
+      required:
+        - book_id
+      properties:
+        book_id:
+          type: integer
+          example: 2
+
+security:
+  - bearerAuth: []
+
+paths:
+  /register:
+    post:
+      security: []
+      tags: [Authentication]
+      description: Registrasi user baru
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterUser'
+      responses:
+        '201':
+          description: User berhasil dibuat
+        '400':
+          description: Input tidak valid
+
+  /login:
+    post:
+      security: []
+      tags: [Authentication]
+      description: Login user dan dapatkan JWT
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginUser'
+      responses:
+        '200':
+          description: Token berhasil dibuat
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Login gagal
+
+  /users:
+    get:
+      tags: [Users]
+      summary: Admin only
+      description: Ambil semua user
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List user
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
+                    email:
+                      type: string
+                    permission:
+                      type: string
+        '401':
+          description: Unauthorized
+
+  /users/{id}:
+    put:
+      tags: [Users]
+      summary: Admin only
+      description: Edit user berdasarkan ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterUser'
+      responses:
+        '200':
+          description: User berhasil diperbarui
+        '400':
+          description: Input tidak valid
+        '404':
+          description: User tidak ditemukan
+        '401':
+          description: Unauthorized
+
+    delete:
+      tags: [Users]
+      summary: Admin only
+      description: Hapus user berdasarkan ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: User berhasil dihapus
+        '404':
+          description: User tidak ditemukan
+        '401':
+          description: Unauthorized
+
+
+  /books:
+    get:
+      tags: [Books]
+      description: Ambil semua buku
+      responses:
+        '200':
+          description: List buku
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Book'
+
+    post:
+      tags: [Books]
+      summary: Admin only
+      description: Tambahkan buku baru
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookInput'
+      responses:
+        '201':
+          description: Buku berhasil ditambahkan
+        '401':
+          description: Unauthorized
+
+  /borrowings:
+    get:
+      tags: [Borrowings]
+      description: Ambil semua data peminjaman
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List peminjaman
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Borrowing'
+        '401':
+          description: Unauthorized
+
+    post:
+      tags: [Borrowings]
+      description: Pinjam buku
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BorrowRequest'
+      responses:
+        '201':
+          description: Peminjaman berhasil
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Borrowing'
+        '400':
+          description: Buku tidak tersedia
+        '401':
+          description: Unauthorized
+
+  /borrowings/{id}/return:
+    put:
+      tags: [Borrowings]
+      summary: Admin only
+      description: Kembalikan buku
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID peminjaman
+      responses:
+        '200':
+          description: Buku berhasil dikembalikan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '400':
+          description: Buku sudah dikembalikan
+        '404':
+          description: Data peminjaman tidak ditemukan
+        '401':
+          description: Unauthorized
