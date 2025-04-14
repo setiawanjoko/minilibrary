@@ -12,10 +12,12 @@ import { registerValidator, loginValidator } from "./validators/userValidator.js
 import { apiOnly } from "./middleware/apiOnly.js";
 import { validate } from "./middleware/validate.js";
 import dotenv from "dotenv";
+import cors from cors
 dotenv.config();
 
 const app = express();
 app.use(express.json());
+app.use(cors())
 app.use('/users', apiOnly, userRoutes)
 app.use('/books', apiOnly, bookRoutes)
 app.use('/borrowings', apiOnly, borrowingRoutes)
@@ -64,6 +66,16 @@ app.post("/login", apiOnly, loginValidator, validate, async (req, res) => {
 
 // Root
 app.use("/",  swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+app.use((err, req, res, next) => {
+  console.error('🔥 ERROR:', err.message);
+  console.error(err.stack); // Menampilkan lokasi error
+
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || 'Internal Server Error',
+  });
+});
 
 // Start server
 const PORT = process.env.PORT || 3000;
