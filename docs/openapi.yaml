@@ -6,6 +6,9 @@ info:
 
 servers:
   - url: http://localhost:3000
+    description: For local development
+  - url: https://minilibrary-s8ph.onrender.com
+    description: For Render demo website
 
 tags:
   - name: Authentication

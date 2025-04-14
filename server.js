@@ -12,7 +12,7 @@ import { registerValidator, loginValidator } from "./validators/userValidator.js
 import { apiOnly } from "./middleware/apiOnly.js";
 import { validate } from "./middleware/validate.js";
 import dotenv from "dotenv";
-import cors from cors
+import cors from "cors"
 dotenv.config();
 
 const app = express();
