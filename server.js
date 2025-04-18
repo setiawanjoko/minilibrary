@@ -1,41 +1,52 @@
 import express from "express";
 import pool from "./db.js";
-import swaggerUi from "swagger-ui-express";
+import swaggerUi, { serve } from "swagger-ui-express";
 import YAML from "yamljs";
 const swaggerDocument = YAML.load("./docs/openapi.yaml");
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import userRoutes from './routes/users.js'
-import bookRoutes from './routes/books.js'
-import borrowingRoutes from './routes/borrowings.js'
-import { registerValidator, loginValidator } from "./validators/userValidator.js";
+import userRoutes from "./routes/users.js";
+import bookRoutes from "./routes/books.js";
+import borrowingRoutes from "./routes/borrowings.js";
+import schedulerRoutes from "./routes/scheduler.js";
+import {
+  registerValidator,
+  loginValidator,
+} from "./validators/userValidator.js";
 import { apiOnly } from "./middleware/apiOnly.js";
 import { validate } from "./middleware/validate.js";
 import dotenv from "dotenv";
-import cors from "cors"
+import cors from "cors";
 dotenv.config();
 
 const app = express();
 app.use(express.json());
-app.use(cors())
-app.use('/users', apiOnly, userRoutes)
-app.use('/books', apiOnly, bookRoutes)
-app.use('/borrowings', apiOnly, borrowingRoutes)
+app.use(cors());
+app.use("/users", apiOnly, userRoutes);
+app.use("/books", apiOnly, bookRoutes);
+app.use("/borrowings", apiOnly, borrowingRoutes);
+app.use("/api/v2/events", schedulerRoutes);
 
-app.post("/register", apiOnly, registerValidator, validate, async (req, res) => {
-  const { name, email, password } = req.body;
-  try {
-    const hash = await bcrypt.hash(password, 10);
-    await pool.query(
-      "INSERT INTO users (name, email, password) VALUES ($1, $2, $3)",
-      [name, email, hash]
-    );
-    res.status(201).json({ message: "User registered" });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Registration failed" });
+app.post(
+  "/register",
+  apiOnly,
+  registerValidator,
+  validate,
+  async (req, res) => {
+    const { name, email, password } = req.body;
+    try {
+      const hash = await bcrypt.hash(password, 10);
+      await pool.query(
+        "INSERT INTO users (name, email, password) VALUES ($1, $2, $3)",
+        [name, email, hash]
+      );
+      res.status(201).json({ message: "User registered" });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Registration failed" });
+    }
   }
-});
+);
 
 app.post("/login", apiOnly, loginValidator, validate, async (req, res) => {
   const { email, password } = req.body;
@@ -65,22 +76,25 @@ app.post("/login", apiOnly, loginValidator, validate, async (req, res) => {
 });
 
 // Root
-app.use("/",  swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use("/", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use((err, req, res, next) => {
-  console.error('🔥 ERROR:', err.message);
+  console.error("🔥 ERROR:", err.message);
   console.error(err.stack); // Menampilkan lokasi error
 
   res.status(err.status || 500).json({
     success: false,
-    message: err.message || 'Internal Server Error',
+    message: err.message || "Internal Server Error",
   });
 });
 
 // Start server
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(
-    `📚 Mini Library API running at http://localhost:${process.env.PORT}`
-  );
+const server = app.listen(PORT, () => {
+  const host = server.address().address;
+  const port = server.address().port;
+
+  const serverUrl =
+    host === "::" ? `http://localhost:${port}` : `http://${host}:${port}`;
+  console.log(`📚 Mini Library API running at ${serverUrl}`);
 });
