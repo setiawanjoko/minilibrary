@@ -5,10 +5,8 @@ info:
   description: API documentation for authentication endpoints of the UKT project.
 
 servers:
-  - url: https://minilibrary-s8ph.onrender.com/api
+  - url: https://minilibrary-s8ph.onrender.com/
     description: Render demo website
-  - url: http://localhost:3000/api
-    description: Local development
 
 tags:
   - name: Authentication
@@ -121,9 +119,6 @@ components:
 
 paths:
   /register:
-    servers:
-      - url: http://localhost:3000/
-      - url: https://minilibrary-s8ph.onrender.com/
     post:
       tags: [Authentication]
       summary: Register user
@@ -163,9 +158,6 @@ paths:
                     example: "Registration failed due to server error"
 
   /login:
-    servers:
-      - url: http://localhost:3000/
-      - url: https://minilibrary-s8ph.onrender.com/
     post:
       tags: [Authentication]
       summary: Login user
@@ -195,9 +187,6 @@ paths:
                     example: "Login failed due to server error"
 
   /refresh-token:
-    servers:
-      - url: http://localhost:3000/
-      - url: https://minilibrary-s8ph.onrender.com/
     post:
       tags: [Authentication]
       summary: Refresh access token
@@ -237,9 +226,6 @@ paths:
                     example: "Invalid or expired refresh token"
 
   /logout:
-    servers:
-      - url: http://localhost:3000/
-      - url: https://minilibrary-s8ph.onrender.com/
     post:
       tags: [Authentication]
       summary: Logout user
