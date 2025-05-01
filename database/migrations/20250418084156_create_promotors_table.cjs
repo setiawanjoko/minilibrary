@@ -12,9 +12,9 @@
  * - contact_person_phone: string, unique, nullable
  * - contact_person_email: string, unique, nullable
  * - location_id: foreign key, references locations(id), on delete restrict
- * - status: enum, default to 'active', values: ['active', 'inactive']
  * - created_at: timestamp, default to current timestamp
  * - updated_at: timestamp, default to current timestamp
+ * - deleted_at: timestamp, nullable (for soft deletes)
  */
 
 exports.up = function (knex) {
@@ -37,8 +37,8 @@ exports.up = function (knex) {
       .references("id")
       .inTable("locations")
       .onDelete("RESTRICT");
-    table.enu("status", ["active", "inactive"]).defaultTo("active");
     table.timestamps(true, true);
+    table.timestamp('deleted_at').nullable(); // For soft delete
   });
 };
 

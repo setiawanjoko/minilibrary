@@ -1,0 +1,433 @@
+openapi: 3.0.0
+info:
+  title: Budgeting App API
+  description: API for managing budgets, expenses, categories, and collaborative lists in a budgeting application.
+  version: 1.1.0
+servers:
+  - url: http://localhost:3000
+    description: Local development server
+
+paths:
+  /categories:
+    get:
+      summary: Get all categories
+      description: Retrieve a list of all expense categories.
+      responses:
+        "200":
+          description: A list of categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Category"
+    post:
+      summary: Create a new category
+      description: Add a new expense category.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CategoryRequest"
+      responses:
+        "201":
+          description: Category created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Category"
+
+  /categories/{id}:
+    get:
+      summary: Get a category by ID
+      description: Retrieve details of a specific category by its ID.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Category details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Category"
+        "404":
+          description: Category not found
+    put:
+      summary: Update a category
+      description: Update the details of an existing category.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CategoryRequest"
+      responses:
+        "200":
+          description: Category updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Category"
+        "404":
+          description: Category not found
+    delete:
+      summary: Delete a category
+      description: Remove a category by its ID.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Category deleted successfully
+        "404":
+          description: Category not found
+
+  /expenses:
+    get:
+      summary: Get all expenses
+      description: Retrieve a list of all expenses.
+      responses:
+        "200":
+          description: A list of expenses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Expense"
+    post:
+      summary: Create a new expense
+      description: Add a new expense to the budget.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExpenseRequest"
+      responses:
+        "201":
+          description: Expense created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Expense"
+
+  /expenses/{id}:
+    get:
+      summary: Get an expense by ID
+      description: Retrieve details of a specific expense by its ID.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Expense details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Expense"
+        "404":
+          description: Expense not found
+    put:
+      summary: Update an expense
+      description: Update the details of an existing expense.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExpenseRequest"
+      responses:
+        "200":
+          description: Expense updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Expense"
+        "404":
+          description: Expense not found
+    delete:
+      summary: Delete an expense
+      description: Remove an expense by its ID.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Expense deleted successfully
+        "404":
+          description: Expense not found
+
+  /lists:
+    get:
+      summary: Get all lists
+      description: Retrieve a list of all budgeting lists.
+      responses:
+        "200":
+          description: A list of budgeting lists
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/List"
+    post:
+      summary: Create a new list
+      description: Add a new budgeting list.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ListRequest"
+      responses:
+        "201":
+          description: List created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/List"
+
+  /lists/{id}:
+    get:
+      summary: Get a list by ID
+      description: Retrieve details of a specific budgeting list by its ID.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/List"
+        "404":
+          description: List not found
+    put:
+      summary: Update a list
+      description: Update the details of an existing budgeting list.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ListRequest"
+      responses:
+        "200":
+          description: List updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/List"
+        "404":
+          description: List not found
+    delete:
+      summary: Delete a list
+      description: Remove a budgeting list by its ID.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: List deleted successfully
+        "404":
+          description: List not found
+
+  /lists/{id}/coauthors:
+    post:
+      summary: Add a co-author to a list
+      description: Add a user as a co-author to a specific budgeting list.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CoAuthorRequest"
+      responses:
+        "201":
+          description: Co-author added successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CoAuthor"
+        "404":
+          description: List not found
+    delete:
+      summary: Remove a co-author from a list
+      description: Remove a user as a co-author from a specific budgeting list.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CoAuthorRequest"
+      responses:
+        "204":
+          description: Co-author removed successfully
+        "404":
+          description: List or co-author not found
+
+components:
+  schemas:
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Groceries"
+        description:
+          type: string
+          example: "Expenses related to food and groceries"
+    CategoryRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          example: "Groceries"
+        description:
+          type: string
+          example: "Expenses related to food and groceries"
+    Expense:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        category_id:
+          type: integer
+          example: 1
+        amount:
+          type: number
+          format: float
+          example: 50.75
+        description:
+          type: string
+          example: "Weekly grocery shopping"
+        date:
+          type: string
+          format: date
+          example: "2025-04-01"
+    ExpenseRequest:
+      type: object
+      required:
+        - category_id
+        - amount
+        - date
+      properties:
+        category_id:
+          type: integer
+          example: 1
+        amount:
+          type: number
+          format: float
+          example: 50.75
+        description:
+          type: string
+          example: "Weekly grocery shopping"
+        date:
+          type: string
+          format: date
+          example: "2025-04-01"
+    List:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Monthly Budget"
+        description:
+          type: string
+          example: "A list for managing monthly expenses and savings."
+        owner_id:
+          type: integer
+          example: 1
+        coauthors:
+          type: array
+          items:
+            $ref: "#/components/schemas/CoAuthor"
+    ListRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          example: "Monthly Budget"
+        description:
+          type: string
+          example: "A list for managing monthly expenses and savings."
+    CoAuthor:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          example: 2
+        user_name:
+          type: string
+          example: "Jane Doe"
+    CoAuthorRequest:
+      type: object
+      required:
+        - user_id
+      properties:
+        user_id:
+          type: integer
+          example: 2

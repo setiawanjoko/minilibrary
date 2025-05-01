@@ -1,20 +1,14 @@
 import express from "express";
-import pool from "./db.js";
-import swaggerUi, { serve } from "swagger-ui-express";
+import swaggerUi from "swagger-ui-express";
 import YAML from "yamljs";
-const swaggerDocument = YAML.load("./docs/openapi.yaml");
-import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
-import userRoutes from "./routes/users.js";
-import bookRoutes from "./routes/books.js";
-import borrowingRoutes from "./routes/borrowings.js";
-import schedulerRoutes from "./routes/scheduler.js";
-import {
-  registerValidator,
-  loginValidator,
-} from "./validators/userValidator.js";
-import { apiOnly } from "./middleware/apiOnly.js";
-import { validate } from "./middleware/validate.js";
+const apiSpecsAuth = YAML.load("./docs/openapi-auth-only.yaml");
+const apiSpecsMiniLibrary = YAML.load("./docs/openapi-minilibrary.yaml");
+const apiSpecsEventOrganizers = YAML.load(
+  "./docs/openapi-eventorganizers.yaml")
+const apiSpecsBudgeting = YAML.load("./docs/openapi-budgeting.yaml");
+import miniLibraryRoutes from "./routes/minilibrary/index.js";
+import eventOrganizerRoutes from "./routes/event-organizers/index.js";
+import authRoutes from "./routes/auth.js";
 import dotenv from "dotenv";
 import cors from "cors";
 dotenv.config();
@@ -22,61 +16,25 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 app.use(cors());
-app.use("/users", apiOnly, userRoutes);
-app.use("/books", apiOnly, bookRoutes);
-app.use("/borrowings", apiOnly, borrowingRoutes);
-app.use("/api/v2/events", schedulerRoutes);
 
-app.post(
-  "/register",
-  apiOnly,
-  registerValidator,
-  validate,
-  async (req, res) => {
-    const { name, email, password } = req.body;
-    try {
-      const hash = await bcrypt.hash(password, 10);
-      await pool.query(
-        "INSERT INTO users (name, email, password) VALUES ($1, $2, $3)",
-        [name, email, hash]
-      );
-      res.status(201).json({ message: "User registered" });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: "Registration failed" });
-    }
-  }
-);
+app.use('/', authRoutes)
+app.use("/", swaggerUi.serveFiles(apiSpecsAuth), swaggerUi.setup(apiSpecsAuth, {
+  customSiteTitle: "Auth API Documentation",
+  customCss: ".swagger-ui .topbar { display: none }",
+}));
 
-app.post("/login", apiOnly, loginValidator, validate, async (req, res) => {
-  const { email, password } = req.body;
-  try {
-    const result = await pool.query("SELECT * FROM users WHERE email = $1", [
-      email,
-    ]);
-    if (result.rows.length === 0)
-      return res.status(401).json({ error: "Invalid email or password" });
+app.use("/api", miniLibraryRoutes);
+app.use("/api/docs", swaggerUi.serveFiles(apiSpecsMiniLibrary), swaggerUi.setup(apiSpecsMiniLibrary, {
+  customSiteTitle: "Mini Library API Documentation",
+  customCss: ".swagger-ui .topbar { display: none }",
+}));
 
-    const user = result.rows[0];
-    const valid = await bcrypt.compare(password, user.password);
-    if (!valid)
-      return res.status(401).json({ error: "Invalid email or password" });
+app.use("/api/v2", eventOrganizerRoutes);
+app.use("/api/v2/docs", swaggerUi.serveFiles(apiSpecsEventOrganizers), swaggerUi.setup(apiSpecsEventOrganizers, {
+    customSiteTitle: "Event Organizers API Documentation",
+}));
 
-    const token = jwt.sign(
-      { userId: user.id, email: user.email, role: user.permission },
-      process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN || "1d" }
-    );
-
-    res.status(200).json({ message: "Login successful", token });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Login failed" });
-  }
-});
-
-// Root
-app.use("/", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use("/api/budgeting", swaggerUi.serveFiles(apiSpecsBudgeting), swaggerUi.setup(apiSpecsBudgeting));
 
 app.use((err, req, res, next) => {
   console.error("🔥 ERROR:", err.message);

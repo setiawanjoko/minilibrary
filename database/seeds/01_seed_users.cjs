@@ -4,6 +4,7 @@
  * It uses bcrypt to hash passwords for each user before inserting them into the database.
  */
 
+const { fakerID_ID: faker } = require('@faker-js/faker');
 const bcrypt = require('bcrypt');
 
 exports.seed = async function (knex) {
@@ -12,7 +13,7 @@ exports.seed = async function (knex) {
 
   // Define users with plain text passwords
   const plainUsers = [
-    { name: 'Admin', email: 'admin@mail.com', password: 'password' },
+    { name: 'Admin', email: 'admin@mail.com', password: 'password', permission: 'admin'},
     { name: 'Alice', email: 'alice@mail.com', password: 'password' },
     { name: 'Bob', email: 'bob@mail.com', password: 'password' },
     { name: 'Charlie', email: 'charlie@mail.com', password: 'password' },
@@ -39,6 +40,7 @@ exports.seed = async function (knex) {
     plainUsers.map(async (user) => ({
       ...user,
       password: await bcrypt.hash(user.password, 10),
+      phone: faker.phone.number({style: 'international'}),
     }))
   );
 

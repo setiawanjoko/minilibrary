@@ -1,10 +1,9 @@
-
-
 /**
  * Seeds the `locations` table in the database with predefined data.
  *
  * The `locations` table contains the following columns:
  * - `id` (integer): Primary key, unique identifier for each location.
+ * - `name` (string): The name of the location, not nullable.
  * - `address` (string): The address of the location, not nullable.
  * - `city` (string): The city where the location is situated, not nullable.
  * - `state` (string): The state or region of the location, not nullable.
@@ -21,6 +20,7 @@
 const locations = [
     {
         id: 1,
+        name: 'Prime Minister Residence',
         address: '10 Downing Street',
         city: 'London',
         state: 'England',
@@ -31,6 +31,7 @@ const locations = [
     },
     {
         id: 2,
+        name: 'Old Trafford Stadium',
         address: 'Old Trafford',
         city: 'Manchester',
         state: 'England',
@@ -41,6 +42,7 @@ const locations = [
     },
     {
         id: 3,
+        name: 'Victoria Square',
         address: 'Victoria Square',
         city: 'Birmingham',
         state: 'England',
@@ -51,6 +53,7 @@ const locations = [
     },
     {
         id: 4,
+        name: 'Royal Mile',
         address: 'Royal Mile',
         city: 'Edinburgh',
         state: 'Scotland',
@@ -61,6 +64,7 @@ const locations = [
     },
     {
         id: 5,
+        name: 'George Square',
         address: 'George Square',
         city: 'Glasgow',
         state: 'Scotland',
@@ -71,6 +75,7 @@ const locations = [
     },
     {
         id: 6,
+        name: 'Albert Dock',
         address: 'Albert Dock',
         city: 'Liverpool',
         state: 'England',
@@ -81,6 +86,7 @@ const locations = [
     },
     {
         id: 7,
+        name: 'Cardiff Castle',
         address: 'Cardiff Castle',
         city: 'Cardiff',
         state: 'Wales',
@@ -91,6 +97,7 @@ const locations = [
     },
     {
         id: 8,
+        name: 'Belfast City Hall',
         address: 'Belfast City Hall',
         city: 'Belfast',
         state: 'Northern Ireland',
@@ -101,6 +108,7 @@ const locations = [
     },
     {
         id: 9,
+        name: 'Stonehenge',
         address: 'Stonehenge',
         city: 'Salisbury',
         state: 'England',
@@ -111,6 +119,7 @@ const locations = [
     },
     {
         id: 10,
+        name: 'Oxford University',
         address: 'Oxford University',
         city: 'Oxford',
         state: 'England',

@@ -1,0 +1,273 @@
+openapi: 3.0.0
+info:
+  title: Authentication API
+  version: 1.0.0
+  description: API documentation for authentication endpoints of the UKT project.
+
+servers:
+  - url: https://minilibrary-s8ph.onrender.com/api
+    description: Render demo website
+  - url: http://localhost:3000/api
+    description: Local development
+
+tags:
+  - name: Authentication
+    description: Registration, login, logout, and token management
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "error"
+        message:
+            type: string
+            example: "An error occurred"
+        error:
+          type: object
+          additionalProperties: true
+          example: 
+            message: "Invalid input"
+
+    # This marks the start of Group 1: Authentication schemas
+    RegisterRequest:
+      type: object
+      required:
+        - name
+        - email
+        - password
+      properties:
+        name:
+          type: string
+          example: John Doe
+        email:
+          type: string
+          format: email
+          example: john@example.com
+        password:
+          type: string
+          example: secret123
+
+    RegisterResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        message:
+          type: string
+          example: "User registered successfully"
+
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: john@example.com
+        password:
+          type: string
+          example: secret123
+
+    LoginResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Login successful"
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+
+    RefreshTokenRequest:
+      type: object
+      required:
+        - refreshToken
+      properties:
+        refreshToken:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+    
+    RefreshTokenResponse:
+
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Access token refreshed"
+        accessToken:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          
+    LogoutResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Logout successful"
+    # This marks the end of Group 1: Authentication schemas
+
+paths:
+  /register:
+    servers:
+      - url: http://localhost:3000/
+      - url: https://minilibrary-s8ph.onrender.com/
+    post:
+      tags: [Authentication]
+      summary: Register user
+      description: Register a new user without giving access token and refresh token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+      responses:
+        "201":
+          description: User registered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RegisterResponse"
+        "400":
+          description: Invalid user input
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "User registration failed"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Registration failed due to server error"
+
+  /login:
+    servers:
+      - url: http://localhost:3000/
+      - url: https://minilibrary-s8ph.onrender.com/
+    post:
+      tags: [Authentication]
+      summary: Login user
+      description: Login user and get access token and refresh token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+        "500":
+          description: Login failed due to server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Login failed due to server error"
+
+  /refresh-token:
+    servers:
+      - url: http://localhost:3000/
+      - url: https://minilibrary-s8ph.onrender.com/
+    post:
+      tags: [Authentication]
+      summary: Refresh access token
+      description: Refresh access token using refresh token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RefreshTokenRequest"
+      responses:
+        "200":
+          description: Access token berhasil diperbarui
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RefreshTokenResponse"
+        "400":
+          description: Refresh token is required
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Refresh token is required"
+        "401":
+          description: Invalid or expired refresh token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Invalid or expired refresh token"
+
+  /logout:
+    servers:
+      - url: http://localhost:3000/
+      - url: https://minilibrary-s8ph.onrender.com/
+    post:
+      tags: [Authentication]
+      summary: Logout user
+      description: Logout user and invalidate refresh token
+      responses:
+        "200":
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LogoutResponse"
+        "400":
+          description: Token is required for logout
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Token is required for logout"
+        "500":
+          description: Logout failed due to server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Logout failed due to server error"

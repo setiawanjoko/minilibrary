@@ -14,6 +14,7 @@
 exports.up = function(knex) {
   return knex.schema.createTable('locations', function(table) {
     table.increments('id').primary();
+    table.string('name').notNullable();
     table.string('address').notNullable();
     table.string('city').notNullable();
     table.string('state').notNullable();
@@ -22,6 +23,7 @@ exports.up = function(knex) {
     table.float('latitude');
     table.float('longitude');
     table.timestamps(true, true);
+    table.timestamp('deleted_at').nullable(); // For soft delete
   })
 };
 
