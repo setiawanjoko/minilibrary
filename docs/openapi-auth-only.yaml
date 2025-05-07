@@ -42,6 +42,7 @@ components:
         - name
         - email
         - password
+        - phone
       properties:
         name:
           type: string
@@ -53,11 +54,14 @@ components:
         password:
           type: string
           example: secret123
+        phone:
+          type: string
+          example: "+1234567890"
 
     RegisterResponse:
       type: object
       properties:
-        id:
+        userId:
           type: integer
           example: 1
         message:
