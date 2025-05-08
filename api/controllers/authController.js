@@ -28,7 +28,7 @@ const generateRefreshToken = (user) => {
  * Register a new user
  */
 export const registerUser = async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, phone } = req.body;
 
   try {
 // Hash the password
@@ -36,17 +36,16 @@ export const registerUser = async (req, res) => {
 
 // Insert the user into the database
     const result = await pool.query(
-      "INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id",
-      [name, email, hash]
+      "INSERT INTO users (name, email, password, phone) VALUES ($1, $2, $3, $4) RETURNING id",
+      [name, email, hash, phone]
     );
 
     if(result.rowCount === 0) {
-      return res.status(400).json({ error: "User registration failed" });
+      return res.status(400).json({ message: "User registration failed" });
     }
 
-    res.status(201).json({user_id: result.rows[0].id, message: "User registered" });
+    res.status(201).json({userId: result.rows[0].id, message: "User registered" });
   } catch (err) {
-    
     res.status(500).json({ error: "Registration failed due to server error" });
   }
 };
