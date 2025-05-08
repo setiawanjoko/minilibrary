@@ -5,8 +5,8 @@ import borrowingRoutes from "./borrowings.js";
 
 const router = express.Router();
 
-router.use("/users", usersRoutes);
+//router.use("/users", usersRoutes);
 router.use("/books", booksRoutes);
-router.use("/borrowings", borrowingRoutes);
+//router.use("/borrowings", borrowingRoutes);
 
 export default router;

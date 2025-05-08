@@ -55,6 +55,6 @@ const borrowings = [
 
 exports.seed = async function(knex) {
   await knex('borrowings').del();
-  await knex('borrowings').insert(borrowings);
+  //await knex('borrowings').insert(borrowings);
 };
 

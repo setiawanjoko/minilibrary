@@ -1,0 +1,489 @@
+openapi: 3.0.0
+info:
+  title: Mini Library API
+  description: API for managing books in the mini library.
+  version: 1.0.0
+
+servers:
+  - url: http://minilibrary-sp8h.onrender.com/
+    description: Render API server
+
+tags:
+  - name: Books
+    description: Operations related to books in the library.
+
+paths:
+  /books:
+    get:
+      summary: Get a list of books
+      description: Retrieve a list of all books in the library.
+      tags: [Books]
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+          description: Page number for pagination.
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+          description: Number of books per page.
+      responses:
+        '200':
+          description: A list of books.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Books retrieved successfully.
+                  data:
+                    type: object
+                    properties:
+                      books:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/BookInformation'
+                      total:
+                        type: integer
+                        example: 100
+                      page:
+                        type: integer
+                        example: 1
+                      limit:
+                        type: integer
+                        example: 10
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Internal server error
+
+    post:
+      summary: Add a new book
+      description: Add a new book to the library.
+      tags: [Books]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookInputRequest'
+      responses:
+        '201':
+          description: Book created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookResponse'
+        '400':
+          description: Bad request. Invalid input data.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Book with this ISBN 9876543210 already exists
+        '409':
+          description: Conflict.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Failed to add book Hello World! with ISBN 9876543210
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Internal server error
+
+  /books/{id}:
+    get:
+      summary: Get a book by ID
+      description: Retrieve details of a specific book by its ID.
+      tags: [Books]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the book to retrieve.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Book details retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Book retrieved successfully
+                  data:
+                    type: object
+                    $ref: '#/components/schemas/BookInformation'
+        '400':
+          description: Bad request. Invalid book ID.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Invalid book with ID 1
+        '403':
+          description: Forbidden. User not authorized to access this book.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: User not authorized to access this book
+        '404':
+          description: Book not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Book with ID 1 not found
+        '409':
+          description: Conflict. Book already exists.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Book with this ISBN 9876543210 already exists
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Internal server error
+    put:
+      summary: Edit a book
+      description: Update the details of a specific book by its ID.
+      tags: [Books]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the book to update.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookUpdateRequest'
+      responses:
+        '200':
+          description: Book updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookResponse'
+        '400':
+          description: Bad request. Invalid input data.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: At least one field must be provided to update the book
+        '404':
+          description: Book not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Book with ID 1 not found
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Internal server error
+
+    delete:
+      summary: Delete a book
+      description: Remove a specific book by its ID.
+      tags: [Books]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the book to delete.
+      security:
+        - BearerAuth: []
+      responses:
+        '204':
+          description: Book deleted successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Book deleted successfully
+        '404':
+          description: Book not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Book with ID 1 not found
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Book:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the book.
+        title:
+          type: string
+          description: Title of the book.
+        author:
+          type: string
+          description: Author of the book.
+
+    BookInformation:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the book.
+        isbn:
+          type: string
+          description: International Standard Book Number.
+        title:
+          type: string
+          description: Title of the book.
+        author:
+          type: string
+          description: Author of the book.
+        publisher:
+          type: string
+          description: Publisher of the book.
+        published_date:
+          type: string
+          format: date
+          description: Date when the book was published.
+        genre:
+          type: string
+          description: Genre of the book.
+        language:
+          type: string
+          description: Language of the book.
+        description:
+          type: string
+          description: Description of the book.
+        cover_image:
+            type: object
+            properties:
+              small:
+                type: string
+                format: uri
+                description: URL of the small cover image.
+              medium:
+                type: string
+                format: uri
+                description: URL of the medium cover image.
+              large:
+                type: string
+                format: uri
+                description: URL of the large cover image.
+        uploaded_by:
+          type: string
+          description: User who uploaded the book.
+
+    BookInputRequest:
+      type: object
+      properties:
+        isbn:
+          type: string
+          description: International Standard Book Number.
+        title:
+          type: string
+          description: Title of the book.
+        author:
+          type: string
+          description: Author of the book.
+        publisher:
+          type: string
+          description: Publisher of the book.
+        published_date:
+          type: string
+          format: date
+          description: Date when the book was published.
+        genre:
+          type: string
+          description: Genre of the book.
+        language:
+          type: string
+          description: Language of the book.
+        description:
+          type: string
+          description: Description of the book.
+      required:
+        - isbn
+        - title
+        - author
+        - publisher
+        - published_date
+        - genre
+        - language
+        - description
+    
+    BookUpdateRequest:
+      type: object
+      properties:
+        isbn:
+          type: string
+          description: International Standard Book Number.
+        title:
+          type: string
+          description: Title of the book.
+        author:
+          type: string
+          description: Author of the book.
+        publisher:
+          type: string
+          description: Publisher of the book.
+        published_date:
+          type: string
+          format: date
+          description: Date when the book was published.
+        genre:
+          type: string
+          description: Genre of the book.
+        language:
+          type: string
+          description: Language of the book.
+        description:
+          type: string
+          description: Description of the book.
+
+    BookResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        message:
+          type: string
+        data:
+          type: object
+          $ref: '#/components/schemas/Book'

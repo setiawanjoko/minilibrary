@@ -1,3 +1,5 @@
+import pool from "../db.js";
+
 /**
  * Sends a success response with a unified structure.
  * @param {Object} res - The response object.
@@ -5,12 +7,17 @@
  * @param {string} message - A descriptive success message.
  * @param {number} statusCode - The HTTP status code (default: 200).
  */
-export const successResponse = (res, data, message = "Success", statusCode = 200) => {
-  res.status(statusCode).json({
+export const successResponse = (res, data = null, message = "Success", statusCode = 200) => {
+  const response = {
     status: "success",
-    message,
-    data,
-  });
+    message
+  };
+
+  if (data !== null) {
+    response.data = data;
+  }
+
+  res.status(statusCode).json(response);
 };
 
 /**
@@ -21,9 +28,10 @@ export const successResponse = (res, data, message = "Success", statusCode = 200
  */
 export const errorResponse = (res, error, statusCode = 400) => {
   const errorMessage = typeof error === "string" ? error : error.message || "An error occurred";
+  statusCode = error.statusCode || statusCode; // Use error's status if available
+
   res.status(statusCode).json({
-    status: "error",
-    message: errorMessage,
-    error: statusCode === 500 ? "Internal Server Error" : errorMessage, // Avoid exposing internal errors
+    status: error.action || "error",
+    message: errorMessage
   });
 };

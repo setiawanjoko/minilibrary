@@ -1,3 +1,11 @@
+import pool from "../db.js";
+
+const logger = async (logRecord) => {
+  const { action, endpoint, method, record_id = null, user_id, human_readable_note, timestamp } = logRecord;
+  const query = `INSERT INTO logs (action, endpoint, method, record_id, user_id, human_readable_note, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7)`;
+  const values = [action, endpoint, method, record_id, user_id, human_readable_note, timestamp];
+  await pool.query(query, values);
+}
 /**
  * Generates a random hexadecimal string consisting of two random hexadecimal letters
  * followed by a four-digit number.
@@ -104,4 +112,5 @@ export {
   isUnique,
   generateUniqueValue,
   buildQueryWithFilters,
+  logger
 };

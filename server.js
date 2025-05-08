@@ -6,6 +6,7 @@ const apiSpecsMiniLibrary = YAML.load("./docs/openapi-minilibrary.yaml");
 const apiSpecsEventOrganizers = YAML.load(
   "./docs/openapi-eventorganizers.yaml")
 const apiSpecsBudgeting = YAML.load("./docs/openapi-budgeting.yaml");
+const apiSpecsRplB = YAML.load("./docs/openapi-rplb.yaml");
 import miniLibraryRoutes from "./routes/minilibrary/index.js";
 import eventOrganizerRoutes from "./routes/event-organizers/index.js";
 import authRoutes from "./routes/auth.js";
@@ -17,24 +18,16 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-app.use('/', authRoutes)
-app.use("/", swaggerUi.serveFiles(apiSpecsAuth), swaggerUi.setup(apiSpecsAuth, {
+app.use('/', authRoutes, miniLibraryRoutes)
+app.use('/docs/day1', swaggerUi.serveFiles(apiSpecsAuth), swaggerUi.setup(apiSpecsAuth, {
   customSiteTitle: "Auth API Documentation",
   customCss: ".swagger-ui .topbar { display: none }",
 }));
 
-app.use("/api", miniLibraryRoutes);
-app.use("/api/docs", swaggerUi.serveFiles(apiSpecsMiniLibrary), swaggerUi.setup(apiSpecsMiniLibrary, {
-  customSiteTitle: "Mini Library API Documentation",
+app.use('/docs/day2', swaggerUi.serveFiles(apiSpecsRplB), swaggerUi.setup(apiSpecsRplB, {
+  customSiteTitle: "RPLB API Documentation",
   customCss: ".swagger-ui .topbar { display: none }",
 }));
-
-app.use("/api/v2", eventOrganizerRoutes);
-app.use("/api/v2/docs", swaggerUi.serveFiles(apiSpecsEventOrganizers), swaggerUi.setup(apiSpecsEventOrganizers, {
-    customSiteTitle: "Event Organizers API Documentation",
-}));
-
-app.use("/api/budgeting", swaggerUi.serveFiles(apiSpecsBudgeting), swaggerUi.setup(apiSpecsBudgeting));
 
 app.use((err, req, res, next) => {
   console.error("🔥 ERROR:", err.message);

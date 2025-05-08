@@ -7,7 +7,7 @@ import bcrypt from "bcrypt";
  */
 const generateAccessToken = (user) => {
   return jwt.sign(
-    { userId: user.id, email: user.email, role: user.permission },
+    { userId: user.id, email: user.email, name: user.name },
     process.env.JWT_SECRET,
     { expiresIn: process.env.JWT_ACCESS_EXPIRES_IN || "15m" } // Short-lived access token
   );
@@ -33,7 +33,6 @@ export const registerUser = async (req, res) => {
   try {
 // Hash the password
     const hash = await bcrypt.hash(password, 10);
-    console.log("Hash:", hash);
 
 // Insert the user into the database
     const result = await pool.query(
@@ -47,7 +46,7 @@ export const registerUser = async (req, res) => {
 
     res.status(201).json({user_id: result.rows[0].id, message: "User registered" });
   } catch (err) {
-    console.error("Error during registration:", err);
+    
     res.status(500).json({ error: "Registration failed due to server error" });
   }
 };
