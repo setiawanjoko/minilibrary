@@ -5,7 +5,7 @@ info:
   version: 1.0.0
 
 servers:
-  - url: http://minilibrary-sp8h.onrender.com/
+  - url: https://minilibrary-s8ph.onrender.com/
     description: Render API server
 
 tags:
