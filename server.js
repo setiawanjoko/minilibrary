@@ -24,8 +24,8 @@ app.use('/docs/day1', swaggerUi.serveFiles(apiSpecsAuth), swaggerUi.setup(apiSpe
   customCss: ".swagger-ui .topbar { display: none }",
 }));
 
-app.use('/docs/day2', swaggerUi.serveFiles(apiSpecsRplB), swaggerUi.setup(apiSpecsRplB, {
-  customSiteTitle: "RPLB API Documentation",
+app.use('/docs/uktdaydua', swaggerUi.serveFiles(apiSpecsRplB), swaggerUi.setup(apiSpecsRplB, {
+  customSiteTitle: "RPL API Documentation",
   customCss: ".swagger-ui .topbar { display: none }",
 }));
 
